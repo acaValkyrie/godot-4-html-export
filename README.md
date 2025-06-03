@@ -1,3 +1,7 @@
+# ARCHIVED
+This action has been archived and will no longer be maintained.
+Please create your own fork.
+
 # godot-html-export
 Godot 4.x Github Action for HTML5 export.  
 If you are facing problems with the action or this README feels not complete, pull requests are welcome or open an issue.
