@@ -54,7 +54,7 @@ runs:
         unzip -q Godot_v${VERSION}-${CHANNEL}_export_templates.tpz -d tmp_templates
 
         mkdir -p ~/.local/share/godot/export_templates/${VERSION}.${CHANNEL}
-        cp tmp_templates/templates/web/*.zip ~/.local/share/godot/export_templates/${VERSION}.${CHANNEL}/
+        cp tmp_templates/templates/web*.zip ~/.local/share/godot/export_templates/${VERSION}.${CHANNEL}/
 
         mv Godot_v${VERSION}-${CHANNEL}_linux.x86_64 /usr/local/bin/godot
 
