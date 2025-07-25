@@ -17,7 +17,7 @@ inputs:
   import-timeout-seconds:
     description: 'Timeout seconds for asset import'
     required: false
-    default: '300'
+    default: '100'
   template-name:
     description: 'Name of export preset (Web)'
     required: false
