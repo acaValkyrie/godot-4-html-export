@@ -22,6 +22,10 @@ inputs:
     description: 'Timeout in seconds for the import assets step. Defaults to 100 seconds'
     required: false
     default: '100'
+  template-name:
+    description: 'The name of the export template to use. Defaults to Web'
+    required: false
+    default: 'Web'
   
 runs:
   using: "composite"
@@ -65,4 +69,4 @@ runs:
 
     - name: Export Godot project to html
       shell: bash
-      run: timeout ${{inputs.import-timeout-seconds}} godot --headless --path ${{ inputs.working-directory }} --export-release Web 
+      run: timeout ${{inputs.import-timeout-seconds}} godot --headless --path ${{ inputs.working-directory }} --export-release ${{ inputs.template-name }}
