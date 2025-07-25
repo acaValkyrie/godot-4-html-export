@@ -1,7 +1,7 @@
 
 name: 'Godot Engine 4.x Web Export'
 description: 'Godot Engine 4.x Web export'
-author: 'Simon Dalvai @dulvui'
+author: 'Simon Dalvai @dulvui and A.Canada @acaValkyrie'
 branding:
   color: blue
   icon: upload-cloud
@@ -42,19 +42,15 @@ runs:
       if: steps.cache-godot.outputs.cache-hit != 'true'
       run: |
         wget -q https://github.com/godotengine/godot-builds/releases/download/${{ inputs.godot-version }}-${{ inputs.godot-channel}}/Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
-        wget -q https://github.com/godotengine/godot-builds/releases/download/${{ inputs.godot-version }}-${{ inputs.godot-channel}}/Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
         unzip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
-        unzip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
-        mkdir -p ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.${{ inputs.godot-channel }}
         mkdir -p ~/.config/godot/
-        mv templates/* ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.${{ inputs.godot-channel }}
-        rm -f Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
+        rm -f Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
         mv ./Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64 /usr/local/bin/godot
 
     - name: Open project once to import assets in editor mode
       shell: bash
       continue-on-error: true # timeout will exit with code 124
-      run: timeout 25 godot --headless --path ${{ inputs.working-directory }} -e
+      run: timeout 100 godot --headless --path ${{ inputs.working-directory }} -e
 
     - name: Export Godot project to html
       shell: bash
