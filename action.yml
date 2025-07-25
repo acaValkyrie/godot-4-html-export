@@ -1,73 +1,82 @@
-
-name: 'Godot Engine 4.x Web Export'
-description: 'Godot Engine 4.x Web export'
-author: 'Simon Dalvai @dulvui'
-branding:
-  color: blue
-  icon: upload-cloud
+name: 'Godot Engine 4.x Web Export (fixed)'
+description: 'Enhanced: Ensures Web export templates are placed so Godot can find them'
+author: 'acaValkyrie (modified)'
 
 inputs:
   working-directory:
-    description: 'The working directory'
+    description: 'The working directory (project root)'
     required: false
     default: '.'
   godot-version:
-    description: 'Godot Engine version. Supported are 4.x versions'
+    description: 'Godot Engine version (4.x)'
     required: true
   godot-channel:
-    description: 'Godot Engine release channel (stable, beta, rc1, rc2, rc3...). Defaults to stable'
+    description: 'Godot release channel (stable, beta, rc1...)'
     required: false
     default: 'stable'
   import-timeout-seconds:
-    description: 'Timeout in seconds for the import assets step. Defaults to 100 seconds'
+    description: 'Timeout seconds for asset import'
     required: false
-    default: '100'
+    default: '300'
   template-name:
-    description: 'The name of the export template to use. Defaults to Web'
+    description: 'Name of export preset (Web)'
     required: false
     default: 'Web'
-  
+
 runs:
   using: "composite"
   steps:
-    - name: Check is running on Linux
+    - name: Confirm Linux environment
       if: runner.os != 'Linux'
       shell: bash
       run: exit 1
 
-    - name: Cache Godot files
+    - name: Cache Godot binaries & templates
       id: cache-godot
       uses: actions/cache@v3
       with:
         path: |
           ~/.local/share/godot/**
           /usr/local/bin/godot
-          ~/.config/godot/**
         key: ${{ runner.os }}-godot-${{ inputs.godot-version }}-${{ inputs.godot-channel }}
 
-    - name: Download and config Godot Engine linux server and templates
-      shell: bash
+    - name: Download Godot & export templates if cache miss
       if: steps.cache-godot.outputs.cache-hit != 'true'
+      shell: bash
       run: |
-        wget -q https://github.com/godotengine/godot-builds/releases/download/${{ inputs.godot-version }}-${{ inputs.godot-channel}}/Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
-        wget -q https://github.com/godotengine/godot-builds/releases/download/${{ inputs.godot-version }}-${{ inputs.godot-channel}}/Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
-        unzip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
-        unzip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
-        mkdir -p ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.${{ inputs.godot-channel }}
-        cp export_tmp/templates/web/*.zip ~/.local/share/godot/export_templates/${VERSION}.${CHANNEL}/
-        mkdir -p ~/.config/godot/
-        mv templates/* ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.${{ inputs.godot-channel }}
-        rm -f Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
-        mv ./Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64 /usr/local/bin/godot
+        VERSION=${{ inputs.godot-version }}
+        CHANNEL=${{ inputs.godot-channel }}
 
-    - name: list current dir
-      shell: bash
-      run: ls -la
+        wget -q https://github.com/godotengine/godot-builds/releases/download/${VERSION}-${CHANNEL}/Godot_v${VERSION}-${CHANNEL}_linux.x86_64.zip
+        wget -q https://github.com/godotengine/godot-builds/releases/download/${VERSION}-${CHANNEL}/Godot_v${VERSION}-${CHANNEL}_export_templates.tpz
 
-    - name: show current branch
-      shell: bash
-      run: echo "Current branch is ${{ github.ref_name }}"
+        unzip -q Godot_v${VERSION}-${CHANNEL}_linux.x86_64.zip
+        unzip -q Godot_v${VERSION}-${CHANNEL}_export_templates.tpz -d tmp_templates
 
-    - name: Export Godot project to html
+        mkdir -p ~/.local/share/godot/export_templates/${VERSION}.${CHANNEL}
+        cp tmp_templates/templates/web/*.zip ~/.local/share/godot/export_templates/${VERSION}.${CHANNEL}/
+
+        mv Godot_v${VERSION}-${CHANNEL}_linux.x86_64 /usr/local/bin/godot
+
+    - name: Show template directory (for debugging)
       shell: bash
-      run: timeout ${{inputs.import-timeout-seconds}} godot --headless --path ${{ inputs.working-directory }} --export-release ${{ inputs.template-name }} --verbose
+      run: |
+        VERSION=${{ inputs.godot-version }}
+        CHANNEL=${{ inputs.godot-channel }}
+        ls -l ~/.local/share/godot/export_templates/${VERSION}.${CHANNEL}/
+
+    - name: Import assets by launching headless editor
+      shell: bash
+      run: |
+        timeout ${{ inputs.import-timeout-seconds }} godot --headless --path "${{ inputs.working-directory }}" -e || true
+
+    - name: Export HTML5 to web/index.html
+      shell: bash
+      run: |
+        mkdir -p web
+        godot --headless --path "${{ inputs.working-directory }}" --export-release "${{ inputs.template-name }}" web/index.html
+
+    - name: Display output directory
+      shell: bash
+      run: ls -R web
+
