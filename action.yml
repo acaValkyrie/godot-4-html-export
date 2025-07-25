@@ -1,7 +1,7 @@
 
 name: 'Godot Engine 4.x Web Export'
 description: 'Godot Engine 4.x Web export'
-author: 'Simon Dalvai @dulvui and A.Canada @acaValkyrie'
+author: 'Simon Dalvai @dulvui'
 branding:
   color: blue
   icon: upload-cloud
@@ -46,9 +46,13 @@ runs:
       if: steps.cache-godot.outputs.cache-hit != 'true'
       run: |
         wget -q https://github.com/godotengine/godot-builds/releases/download/${{ inputs.godot-version }}-${{ inputs.godot-channel}}/Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
+        wget -q https://github.com/godotengine/godot-builds/releases/download/${{ inputs.godot-version }}-${{ inputs.godot-channel}}/Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
         unzip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
+        unzip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
+        mkdir -p ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.${{ inputs.godot-channel }}
         mkdir -p ~/.config/godot/
-        rm -f Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip
+        mv templates/* ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.${{ inputs.godot-channel }}
+        rm -f Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64.zip Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_export_templates.tpz
         mv ./Godot_v${{ inputs.godot-version }}-${{ inputs.godot-channel }}_linux.x86_64 /usr/local/bin/godot
 
     - name: list current dir
