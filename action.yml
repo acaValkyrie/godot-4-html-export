@@ -58,6 +58,10 @@ runs:
 
         mv Godot_v${VERSION}-${CHANNEL}_linux.x86_64 /usr/local/bin/godot
 
+        rm -rf Godot_v${VERSION}-${CHANNEL}_linux.x86_64.zip
+        rm -rf Godot_v${VERSION}-${CHANNEL}_export_templates.tpz
+        rm -rf tmp_templates
+
     - name: Show template directory (for debugging)
       shell: bash
       run: |
