@@ -1,6 +1,5 @@
-# ARCHIVED
-This action has been archived and will no longer be maintained.
-Please create your own fork.
+# Forked
+this branch is forked from https://github.com/dulvui/godot-4-html-export
 
 # godot-html-export
 Godot 4.x Github Action for HTML5 export.  
