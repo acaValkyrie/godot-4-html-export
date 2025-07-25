@@ -63,11 +63,6 @@ runs:
       shell: bash
       run: echo "Current branch is ${{ github.ref_name }}"
 
-    - name: Open project once to import assets in editor mode
-      shell: bash
-      continue-on-error: true # timeout will exit with code 124
-      run: timeout ${{inputs.import-timeout-seconds}} godot --headless --path ${{ inputs.working-directory }} -e
-
     - name: Export Godot project to html
       shell: bash
       run: timeout ${{inputs.import-timeout-seconds}} godot --headless --path ${{ inputs.working-directory }} --export-release Web 
